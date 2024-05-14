@@ -1,10 +1,12 @@
 import React from 'react'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import clsx from 'clsx'
 import { Task } from '@prisma/client'
+import TaskButtonDelete from './task-button-delete'
+import Link from 'next/link'
 
 export default function TaskCard({ task }: { task: Task }) {
     return (
@@ -31,12 +33,10 @@ export default function TaskCard({ task }: { task: Task }) {
                 </span>
             </CardContent>
             <CardFooter className='flex gap-x-2 justify-center'>
-                <Button variant="destructive">
-                    Delete
-                </Button>
-                <Button>
+                <TaskButtonDelete taskId={task.id}/>
+                <Link href={`/task/${task.id}/edit`} className={buttonVariants({variant: "secondary"})}>
                     Edit
-                </Button>
+                </Link>
             </CardFooter>
         </Card>
     )

@@ -1,6 +1,5 @@
-import * as React from "react"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
     Card,
     CardContent,
@@ -19,37 +18,18 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import prisma from '@/lib/prisma'
-import {redirect} from 'next/navigation'
+import { createTask, updateTask } from "../../actions/tasks-actions"
+import { Task } from "@prisma/client"
+import Link from "next/link"
 
-export function TaskForm() {
 
-    async function createTask(formData: FormData) {
-        "use server"
-        const name = formData.get("name")?.toString();
-        const description = formData.get("description")?.toString();
-        const priority = formData.get("priority")?.toString();
+export function TaskForm({task}:{task: Task}) {
 
-        console.log({name, description, priority});
-
-        if (!name || !description || !priority){
-            return;
-        }
-
-        const newTask= await prisma.task.create({
-            data: {
-                name: name,
-                description: description,
-                priority: priority,
-            }
-        })
-
-        console.log(newTask);
-        redirect("/");
-    }
+    const functionAction = task?.id ? updateTask : createTask;
 
     return (
-        <form action={createTask}>
+        <form action={functionAction}>
+            <input type="hidden" name="id" value={task?.id}/>
             <Card className="w-[350px]">
                 <CardHeader>
                     <CardTitle>Create Task</CardTitle>
@@ -62,15 +42,19 @@ export function TaskForm() {
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="name">Name</Label>
-                            <Input name="name" id="name" placeholder="Name of your task" />
+                            <Input name="name" id="name" placeholder="Name of your task"
+                            defaultValue={task?.name}
+                            />
                         </div>
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="description">Description</Label>
-                            <Textarea name="description" placeholder="Description of the task" />
+                            <Textarea name="description" placeholder="Description of the task"
+                            defaultValue={task?.description || ""}
+                            />
                         </div>
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="priority">Priority</Label>
-                            <Select name="priority">
+                            <Select name="priority" defaultValue={task?.priority}>
                                 <SelectTrigger id="priority">
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -86,8 +70,10 @@ export function TaskForm() {
 
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                    <Button variant="outline">Cancel</Button>
-                    <Button type="submit">Create task</Button>
+                    <Link href="/" className={buttonVariants({variant: "secondary"})}>Cancel</Link>
+                    <Button type="submit">
+                        {task?.id ? "Update Task" : "Create Task"}
+                    </Button>
                 </CardFooter>
             </Card>
         </form>
